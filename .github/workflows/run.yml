@@ -1,0 +1,26 @@
+name: Run Selfbot
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install discord.py==1.7.3 aiohttp
+
+      - name: Run selfbot
+        run: python selfbot.py
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
