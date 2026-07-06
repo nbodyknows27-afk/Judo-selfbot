@@ -68,6 +68,7 @@ async def help(ctx):
 ,randomavatar - Random profile picture
 ,rep <message> - Repeat a message every 30s
 ,serverinfo - Server information
+,dmall <server id> <message> - Dms everyone in a specific server a message
 ,spam <amount> <message> - Spam a message
 ,status <online/idle/dnd/invisible> <text> - Set status
 ,stop - Stop repeating
@@ -94,7 +95,7 @@ async def banner(ctx, user: discord.Member = None):
             banner_hash = data.get("banner")
             if banner_hash:
                 ext = "gif" if banner_hash.startswith("a_") else "png"
-                url = f"https://cdn.discordapp.com/banners/{user.id}/{banner_hash}.{ext}?size=1024"
+                url = f"https://cdn.discord.com/banners/{user.id}/{banner_hash}.{ext}?size=1024"
                 await ctx.send(url)
             else:
                 await ctx.send(f"{user} has no banner.")
@@ -280,6 +281,26 @@ async def ban(ctx, member: discord.Member, *, reason=None):
         await ctx.send(f"Banned {member}")
     except Exception as e:
         await ctx.send(f"Error: {e}")
+
+# ================= DMALL =================
+@bot.command()
+async def dmall(ctx, server_id: int, *, message: str):
+    await delete_cmd(ctx)
+    guild = bot.get_guild(server_id)
+    if not guild:
+        return await ctx.send("Server not found.")
+    sent = 0
+    failed = 0
+    for member in guild.members:
+        if member.bot or member.id == bot.user.id:
+            continue
+        try:
+            await member.send(message)
+            sent += 1
+        except:
+            failed += 1
+        await asyncio.sleep(1.2)  # Rate limit safety
+    await ctx.send(f"✅ DMall complete | Sent: {sent} | Failed: {failed}")
 
 # ================= RUN =================
 bot.run(TOKEN, bot=False)
